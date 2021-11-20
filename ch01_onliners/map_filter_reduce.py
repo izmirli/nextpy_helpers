@@ -116,7 +116,6 @@ def count_inner_function_code_lines(code_lines: list) -> int:
     :return: number of code lines.
     """
     inner_code_lines = 0
-    inner_code_text = ''
     docstring_mode = False
     for line in map(lambda s: s.strip(), code_lines):
         # empty, "pass" or comment line.
