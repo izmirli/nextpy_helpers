@@ -1,5 +1,6 @@
 """Unit 1.5 - concluding exercise."""
 import re
+import pytest
 from inspect import getsourcelines
 from functools import partial
 
@@ -63,36 +64,51 @@ def main():
 # tests for functions - use with pytest
 def test_print_longest_name(capsys):
     """Test print_longest_name."""
+    func_code, _ = getsourcelines(print_longest_name)
+    inner_lines_count = count_inner_function_code_lines(func_code)
+    if inner_lines_count == 0:
+        pytest.skip("function is not yet implemented.")
+    assert inner_lines_count <= 2
+
     print_longest_name()
     captured = capsys.readouterr()
     assert captured.out.strip() == 'Vladimir'
 
-    func_code, _ = getsourcelines(print_longest_name)
-    assert count_inner_function_code_lines(func_code) <= 2
-
 
 def test_print_sum_of_names_length(capsys):
     """Test print_sum_of_names_length."""
+    func_code, _ = getsourcelines(print_sum_of_names_length)
+    inner_lines_count = count_inner_function_code_lines(func_code)
+    if inner_lines_count == 0:
+        pytest.skip("function is not yet implemented.")
+    assert inner_lines_count <= 2
+
     print_sum_of_names_length()
     captured = capsys.readouterr()
     assert captured.out.strip() == '38'
 
-    func_code, _ = getsourcelines(print_sum_of_names_length)
-    assert count_inner_function_code_lines(func_code) <= 2
-
 
 def test_print_shortest_names(capsys):
     """Test print_shortest_names."""
+    func_code, _ = getsourcelines(print_shortest_names)
+    inner_lines_count = count_inner_function_code_lines(func_code)
+    if inner_lines_count == 0:
+        pytest.skip("function is not yet implemented.")
+    assert inner_lines_count <= 4
+
     print_shortest_names()
     captured = capsys.readouterr().out.strip()
     assert captured == 'Ed\nJo' or captured == 'Jo\nEd'
 
-    func_code, _ = getsourcelines(print_shortest_names)
-    assert count_inner_function_code_lines(func_code) <= 4
-
 
 def test_create_file_with_names_length(monkeypatch, tmpdir):
     """Test create_file_with_names_length."""
+    func_code, _ = getsourcelines(create_file_with_names_length)
+    inner_lines_count = count_inner_function_code_lines(func_code)
+    if inner_lines_count == 0:
+        pytest.skip("function is not yet implemented.")
+    assert inner_lines_count <= 3
+
     read_names_open = partial(open, NAMES_FILE, 'r')
     tmp_names_length = tmpdir.join(NAMES_LENGTH_FILE)
     write_names_length_open = partial(open, tmp_names_length, 'w')
@@ -112,19 +128,19 @@ def test_create_file_with_names_length(monkeypatch, tmpdir):
     content = tmp_names_length.read()
     assert content == '4\n4\n8\n7\n2\n5\n6\n2\n'
 
-    func_code, _ = getsourcelines(create_file_with_names_length)
-    assert count_inner_function_code_lines(func_code) <= 3
-
 
 def test_print_names_by_length(capsys, monkeypatch):
     """Test print_names_by_length."""
+    func_code, _ = getsourcelines(print_names_by_length)
+    inner_lines_count = count_inner_function_code_lines(func_code)
+    if inner_lines_count == 0:
+        pytest.skip("function is not yet implemented.")
+    assert inner_lines_count <= 3
+
     monkeypatch.setattr('builtins.input', lambda _: '4')
     print_names_by_length()
     captured = capsys.readouterr().out.strip()
     assert captured == 'Hans\nAnna' or captured == 'Anna\nHans'
-
-    func_code, _ = getsourcelines(print_names_by_length)
-    assert count_inner_function_code_lines(func_code) <= 3
 
 
 def count_inner_function_code_lines(code_lines: list) -> int:
@@ -138,7 +154,8 @@ def count_inner_function_code_lines(code_lines: list) -> int:
     inner_code_lines = 0
     docstring_mode = False
     for line in map(lambda s: s.strip(), code_lines):
-        if line == '' or line.startswith('#'):  # empty or comment line.
+        # empty, "pass" or comment line.
+        if line == '' or line == 'pass' or line.startswith('#'):
             continue
 
         if re.search(r'^def ', line):  # definition
